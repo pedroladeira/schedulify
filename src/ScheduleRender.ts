@@ -1,30 +1,58 @@
-import { Grid } from './interfaces/grid';
+import { ScheduleGrid } from './interfaces/schedule';
 
 class ScheduleRender {
-    static render(element: HTMLDivElement, grid: Grid): void {
-        ScheduleRender.build(grid);
-        const container = ScheduleRender.createElement('ss-container');
-        grid.map((column) => {
-            if (column.element) {
-                container.appendChild(column.element);
-                column.blocks.map((block) => {
-                    if (column.element && block.element) {
-                        column.element.appendChild(block.element);
-                    }
-                });
-            }
+    static render(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        // render ui header
+        ScheduleRender.renderHeaderUi(element, schedule);
+        // render grid
+        ScheduleRender.renderGrid(element, schedule);
+    }
+
+    private static renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        const container = ScheduleRender.createElementContainer();
+        schedule.grid.map((column) => {
+            const elCol = ScheduleRender.createElementColumn();
+            column.blocks.map((block) => {
+                const elBlk = ScheduleRender.createElementBlock();
+                elCol.appendChild(elBlk);
+            });
+            container.appendChild(elCol);
         });
         element.appendChild(container);
     }
 
-    static build(grid: Grid): void {
-        grid.forEach((column, i) => {
-            column.element = ScheduleRender.createElement('ss-column');
-            column.element.innerHTML = `teste: ${i}`;
-            column.blocks.forEach((block) => {
-                block.element = ScheduleRender.createElement('ss-block');
-            });
+    private static renderHeaderUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        const elHeader = ScheduleRender.createElementHeader();
+        schedule.ui.header?.days.map((day) => {
+            elHeader.appendChild(ScheduleRender.createElementHeaderColumn(day));
         });
+        element.appendChild(elHeader);
+    }
+
+    private static createElementHeader(): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-header');
+        return elem;
+    }
+
+    private static createElementHeaderColumn(value: string): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-header-column');
+        elem.innerHTML = value;
+        return elem;
+    }
+
+    private static createElementContainer(): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-container');
+        return elem;
+    }
+
+    private static createElementColumn(): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-column');
+        return elem;
+    }
+
+    private static createElementBlock(): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-block');
+        return elem;
     }
 
     private static createElement(classNames?: string): HTMLDivElement {

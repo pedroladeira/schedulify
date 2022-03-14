@@ -7,7 +7,6 @@ const initSchedule = (element: HTMLDivElement) => {
         view: ScheduleView.Week
     });
     schedule.render();
-    console.log('INIT');
 };
 
 export { initSchedule };
