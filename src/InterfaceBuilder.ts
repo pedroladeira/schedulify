@@ -3,7 +3,7 @@ import { ScheduleParams } from "./interfaces/parameters";
 class InterfaceBuilder {
     static build(params: ScheduleParams): InterfaceUi {
         const ui: InterfaceUi = {};
-        if(params.hideHeader) return ui;
+        if (params.hideHeader) return ui;
         ui.header = InterfaceBuilder.buildHeader();
         ui.sideHours = InterfaceBuilder.buildSideHours();
         return ui;
@@ -11,7 +11,8 @@ class InterfaceBuilder {
 
     static buildHeader(): HeaderUi {
         return {
-            days: ['Dom', 'Seg', 'Ter', 'Quar', 'Qui', 'Sex', 'Sab']
+            days: ['Dom', 'Seg', 'Ter', 'Quar', 'Qui', 'Sex', 'Sab'],
+            hasAside: true
         };
     }
 

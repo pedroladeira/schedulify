@@ -1,6 +1,7 @@
 
 interface HeaderUi {
     days: string[];
+    hasAside?: boolean;
 }
 
 interface SideHours {

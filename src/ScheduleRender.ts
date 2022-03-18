@@ -11,6 +11,7 @@ class ScheduleRender {
         ScheduleRender.renderGrid(container, schedule);
 
         element.appendChild(container);
+        element.className = 'ss';
     }
 
     private static renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
@@ -28,18 +29,23 @@ class ScheduleRender {
 
     private static renderHeaderUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const elHeader = ScheduleRender.createElementHeader();
-        schedule.ui.header?.days.map((day, i) => {
-            const col = ScheduleRender.createElementHeaderColumn(day);
+        if (schedule.ui.header?.hasAside) {
+            const col = ScheduleRender.createElementHeaderColumn();
             elHeader.appendChild(col);
+        }
+        const colHeaders = ScheduleRender.createElementHeaderColumn();
+        schedule.ui.header?.days.map((day, i) => {
+            const col = ScheduleRender.createElementHeaderColumnDay(day);
+            colHeaders.appendChild(col);
         });
-        elHeader.style.paddingLeft = '50px';
+        elHeader.appendChild(colHeaders);
         element.appendChild(elHeader);
     }
 
     private static renderAsideUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const aside = ScheduleRender.createElementAside();
         schedule.ui.sideHours?.hours.map((block) => {
-            const elBlk = ScheduleRender.createElementBlock();
+            const elBlk = ScheduleRender.createElement('ss-aside-block');
             elBlk.innerHTML = block;
             aside.appendChild(elBlk);
         });
@@ -56,9 +62,14 @@ class ScheduleRender {
         return elem;
     }
 
-    private static createElementHeaderColumn(value: string): HTMLDivElement {
-        const elem = ScheduleRender.createElement('ss-header-column');
+    private static createElementHeaderColumnDay(value: string): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-header-column-day');
         elem.innerHTML = value;
+        return elem;
+    }
+
+    private static createElementHeaderColumn(): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-header-column');
         return elem;
     }
 

@@ -3,7 +3,16 @@
     width: 100%;
 }
 
+.ss-header > div:first-child {
+    width: 50px !important;
+}
+
 .ss-header-column {
+    display: flex;
+    width: 100%;
+}
+
+.ss-header-column-day {
     width: 100%;
     padding: 4px;
     border: 1px solid #bbb;
@@ -18,6 +27,13 @@
 .ss-aside {
     display: flex;
     flex-direction: column;
+    width: 50px;
+    text-align: center;
+}
+
+.ss-aside-block {
+    height: 100%;
+    border: 1px solid #bbb;
 }
 
 .ss-grid {
