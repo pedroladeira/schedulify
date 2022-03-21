@@ -28,7 +28,7 @@ class ScheduleRender {
             ScheduleRender.removeAllEventsNode(elemContainer as HTMLDivElement)
             schedule.events.map((event) => {
                 EventsManager.updatePosition(event);
-                const elEvent = ScheduleRender.createElement('ss-event');
+                const elEvent = ScheduleRender.createElementEvent(event.title);
                 elEvent.style.top = `${event.position?.top}px`;
                 elEvent.style.left = `${event.position?.left}px`;
                 elEvent.style.width = `${event.position?.width}px`;
@@ -74,6 +74,12 @@ class ScheduleRender {
             aside.appendChild(elBlk);
         });
         element.appendChild(aside);
+    }
+
+    private static createElementEvent(title: string): HTMLDivElement {
+        const elem = ScheduleRender.createElement('ss-event');
+        elem.innerHTML = `<span>${title}</span>`;
+        return elem;
     }
 
     private static createElementHeader(): HTMLDivElement {

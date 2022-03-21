@@ -11,6 +11,7 @@ class Schedule {
     paramsManager?: ParametersManager;
     scheduleGrid?: ScheduleGrid;
     element?: HTMLDivElement;
+    created: boolean = false;
 
     create(element: HTMLDivElement, params: ScheduleParams): void {
         this.paramsManager = new ParametersManager(params);
@@ -24,6 +25,7 @@ class Schedule {
             events: this.paramsManager.getEvents(),
         }
         this.element = element;
+        this.created = true;
     }
 
     render(): void {
@@ -34,7 +36,8 @@ class Schedule {
     }
 
     refreshData(): void {
-        if (this.element && this.scheduleGrid) {
+        if (this.element && this.scheduleGrid && this.created) {
+            ScheduleRender.renderEvents(this.element, this.scheduleGrid);
         }
     }
 }
