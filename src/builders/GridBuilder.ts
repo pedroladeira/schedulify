@@ -1,4 +1,4 @@
-import { Grid, GridBlock, GridColumn } from './interfaces/grid';
+import { Grid, GridBlock, GridColumn } from '../interfaces/grid';
 
 class GridBuilder {
     static build(columns: number, blocks: number): Grid {

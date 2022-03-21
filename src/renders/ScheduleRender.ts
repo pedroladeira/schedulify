@@ -1,4 +1,5 @@
-import { ScheduleGrid } from './interfaces/schedule';
+import { EventsManager } from '../managers/EventsManager';
+import { ScheduleGrid } from '../interfaces/schedule';
 
 class ScheduleRender {
     static render(element: HTMLDivElement, schedule: ScheduleGrid): void {
@@ -10,8 +11,31 @@ class ScheduleRender {
         // render grid
         ScheduleRender.renderGrid(container, schedule);
 
+        container.appendChild(ScheduleRender.createElement('ss-events-container'));
         element.appendChild(container);
         element.className = 'ss';
+    }
+
+    static removeAllEventsNode(container: HTMLDivElement): void {
+        while (container.childNodes.length > 0) {
+            container.removeChild(container.childNodes[0]);
+        }
+    }
+
+    static renderEvents(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        const elemContainer = element.querySelector('.ss-events-container');
+        if (elemContainer) {
+            ScheduleRender.removeAllEventsNode(elemContainer as HTMLDivElement)
+            schedule.events.map((event) => {
+                EventsManager.updatePosition(event);
+                const elEvent = ScheduleRender.createElement('ss-event');
+                elEvent.style.top = `${event.position?.top}px`;
+                elEvent.style.left = `${event.position?.left}px`;
+                elEvent.style.width = `${event.position?.width}px`;
+                elEvent.style.height = `${event.position?.height}px`;
+                elemContainer.appendChild(elEvent);
+            });
+        }
     }
 
     private static renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
