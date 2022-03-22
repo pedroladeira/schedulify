@@ -1,7 +1,6 @@
 import { EventsManager } from '../managers/EventsManager';
 import { GridBuilder } from '../builders/GridBuilder';
 import { InterfaceBuilder } from '../builders/InterfaceBuilder';
-import { Grid } from '../interfaces/grid';
 import { ScheduleParams } from '../interfaces/parameters';
 import { ScheduleGrid } from '../interfaces/schedule';
 import { ParametersManager } from '../managers/ParametersManager';

@@ -64,5 +64,5 @@
     left: 0px;
     width: 100px;
     height: 100px;
-    background-color: blue;
+    border: 1px solid red;
 }

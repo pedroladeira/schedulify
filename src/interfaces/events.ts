@@ -6,10 +6,12 @@ interface GridEventPosition {
 }
 
 interface GridEvent {
+    id: string;
     title: string;
     startDate: Date;
     endDate: Date;
     position?: GridEventPosition;
+    collideIds?: string[];
 }
 
 export type { GridEvent };

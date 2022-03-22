@@ -26,14 +26,17 @@ class ScheduleRender {
         const elemContainer = element.querySelector('.ss-events-container');
         if (elemContainer) {
             ScheduleRender.removeAllEventsNode(elemContainer as HTMLDivElement)
-            schedule.events.map((event) => {
-                EventsManager.updatePosition(event);
-                const elEvent = ScheduleRender.createElementEvent(event.title);
-                elEvent.style.top = `${event.position?.top}px`;
-                elEvent.style.left = `${event.position?.left}px`;
-                elEvent.style.width = `${event.position?.width}px`;
-                elEvent.style.height = `${event.position?.height}px`;
-                elemContainer.appendChild(elEvent);
+            const collideEvents = EventsManager.groupCollideEvents(schedule.events);
+            collideEvents.map((events) => {
+                events.map((event, index) => {
+                    EventsManager.updatePosition(event, events.length, index);
+                    const elEvent = ScheduleRender.createElementEvent(event.title);
+                    elEvent.style.top = `${event.position?.top}px`;
+                    elEvent.style.left = `${event.position?.left}px`;
+                    elEvent.style.width = `${event.position?.width}px`;
+                    elEvent.style.height = `${event.position?.height}px`;
+                    elemContainer.appendChild(elEvent);
+                });
             });
         }
     }
