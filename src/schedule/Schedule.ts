@@ -14,7 +14,16 @@ class Schedule {
 
     create(element: HTMLDivElement, params: ScheduleParams): void {
         this.paramsManager = new ParametersManager(params);
-        EventsManager.setEventsPosition(this.paramsManager.getEvents(), this.paramsManager);
+        EventsManager.addEventsPosition(this.paramsManager.getEvents(), this.paramsManager);
+
+        this.rebuild();
+
+        this.element = element;
+        this.created = true;
+    }
+
+    rebuild(): void {
+        if (!this.paramsManager) return;
 
         this.scheduleGrid = {
             grid: GridBuilder.build(
@@ -23,8 +32,10 @@ class Schedule {
             ui: InterfaceBuilder.build(this.paramsManager),
             events: this.paramsManager.getEvents(),
         }
-        this.element = element;
-        this.created = true;
+    }
+
+    updateParameters(params: ScheduleParams): void {
+        this.paramsManager = new ParametersManager(params);
     }
 
     render(): void {

@@ -6,7 +6,7 @@ import { CalendarManager } from "./CalendarManager";
 
 class EventsManager {
 
-    static setEventsPosition(events: GridEvent[], params: ParametersManager): void {
+    static addEventsPosition(events: GridEvent[], params: ParametersManager): void {
         events.map((event) => {
             EventsManager.createDefaultPosition(event, params);
         });

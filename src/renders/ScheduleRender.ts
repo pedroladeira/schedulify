@@ -3,6 +3,7 @@ import { ScheduleGrid } from '../interfaces/schedule';
 
 class ScheduleRender {
     static render(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        ScheduleRender.removeAllEventsNode(element as HTMLDivElement)
         const container = ScheduleRender.createElementContainer();
         // render ui header
         ScheduleRender.renderHeaderUi(element, schedule);

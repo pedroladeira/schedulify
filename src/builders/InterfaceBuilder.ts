@@ -26,8 +26,10 @@ class InterfaceBuilder {
 
     static buildSideHours(): SideHours {
         return {
-            hours: Array(24).fill(0).map((_, i) => {
-                return `${String(i).padStart(2, '0')}:00`
+            hours: Array(24 * 2).fill(0).map((_, i) => {
+                const hour = (i - 1) / 2;
+                const minutes = String(hour).includes('.') ? '00' : '30';
+                return `${String(Math.ceil(hour)).padStart(2, '0')}:${minutes}`
             }),
         };
     }
