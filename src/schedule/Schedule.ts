@@ -5,17 +5,20 @@ import { ScheduleParams } from '../interfaces/parameters';
 import { ScheduleGrid } from '../interfaces/schedule';
 import { ParametersManager } from '../managers/ParametersManager';
 import { ScheduleRender } from '../renders/ScheduleRender';
+import { ScheduleEventRender } from '../renders/ScheduleEventRender';
 
 class Schedule {
     paramsManager?: ParametersManager;
     scheduleGrid?: ScheduleGrid;
     scheduleRender?: ScheduleRender;
+    scheduleEventRender?: ScheduleEventRender;
     element?: HTMLDivElement;
     created: boolean = false;
 
     create(element: HTMLDivElement, params: ScheduleParams): void {
         this.paramsManager = new ParametersManager(params);
         this.scheduleRender = new ScheduleRender(this.paramsManager);
+        this.scheduleEventRender = new ScheduleEventRender(this.paramsManager);
         EventsManager.addEventsPosition(this.paramsManager.getEvents(), this.paramsManager);
 
         this.rebuild();
@@ -41,15 +44,15 @@ class Schedule {
     }
 
     render(): void {
-        if (this.element && this.scheduleGrid && this.scheduleRender) {
+        if (this.element && this.scheduleGrid && this.scheduleRender && this.scheduleEventRender) {
             this.scheduleRender.render(this.element, this.scheduleGrid);
-            this.scheduleRender.renderEvents(this.element, this.scheduleGrid);
+            this.scheduleEventRender.renderEvents(this.element, this.scheduleGrid);
         }
     }
 
     refreshData(): void {
-        if (this.element && this.scheduleGrid && this.scheduleRender && this.created) {
-            this.scheduleRender.renderEvents(this.element, this.scheduleGrid);
+        if (this.element && this.scheduleGrid && this.scheduleEventRender && this.created) {
+            this.scheduleEventRender.renderEvents(this.element, this.scheduleGrid);
         }
     }
 }
