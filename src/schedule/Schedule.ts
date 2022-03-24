@@ -9,11 +9,13 @@ import { ScheduleRender } from '../renders/ScheduleRender';
 class Schedule {
     paramsManager?: ParametersManager;
     scheduleGrid?: ScheduleGrid;
+    scheduleRender?: ScheduleRender;
     element?: HTMLDivElement;
     created: boolean = false;
 
     create(element: HTMLDivElement, params: ScheduleParams): void {
         this.paramsManager = new ParametersManager(params);
+        this.scheduleRender = new ScheduleRender(this.paramsManager);
         EventsManager.addEventsPosition(this.paramsManager.getEvents(), this.paramsManager);
 
         this.rebuild();
@@ -39,15 +41,15 @@ class Schedule {
     }
 
     render(): void {
-        if (this.element && this.scheduleGrid) {
-            ScheduleRender.render(this.element, this.scheduleGrid);
-            ScheduleRender.renderEvents(this.element, this.scheduleGrid);
+        if (this.element && this.scheduleGrid && this.scheduleRender) {
+            this.scheduleRender.render(this.element, this.scheduleGrid);
+            this.scheduleRender.renderEvents(this.element, this.scheduleGrid);
         }
     }
 
     refreshData(): void {
-        if (this.element && this.scheduleGrid && this.created) {
-            ScheduleRender.renderEvents(this.element, this.scheduleGrid);
+        if (this.element && this.scheduleGrid && this.scheduleRender && this.created) {
+            this.scheduleRender.renderEvents(this.element, this.scheduleGrid);
         }
     }
 }

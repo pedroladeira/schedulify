@@ -7,7 +7,7 @@ class UiHelper {
     }
 
     static getGridColumnHeight(): number {
-        return 42;
+        return 41;
     }
 
     static getAsideWidth(): number {

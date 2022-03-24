@@ -2,16 +2,18 @@ import React, { FC, useState, useEffect, useRef } from "react";
 import { ScheduleView } from "./interfaces/types";
 import { Schedule as CalSchedule } from "./schedule/Schedule";
 import '../src/styles/index.css';
-import { GridEvent } from "./interfaces/events";
+import { ScheduleEvent } from "./interfaces/events";
 import { uniqueId } from "./helpers/UniqueId";
 
-interface ScheduleProps { }
+interface ScheduleProps {
+    onDblClickBlock?(date: Date): void;
+}
 
-const Schedule: FC = () => {
+const Schedule: FC<ScheduleProps> = ({ }) => {
     const refSchedule = useRef<HTMLDivElement>(null);
     const [schedule] = useState<CalSchedule>(new CalSchedule());
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [events] = useState<GridEvent[]>([{
+    const [events] = useState<ScheduleEvent[]>([{
         id: uniqueId(),
         title: 'Hello',
         startDate: (() => {
@@ -20,6 +22,9 @@ const Schedule: FC = () => {
         endDate: (() => {
             const dt = new Date(); dt.setHours(13); return dt;
         })(),
+        onDblClick: (ev) => {
+            console.log('eventID: ', ev.id);
+        },
     }, {
         id: uniqueId(),
         title: 'HelloX',
@@ -29,6 +34,9 @@ const Schedule: FC = () => {
         endDate: (() => {
             const dt = new Date(); dt.setHours(13); return dt;
         })(),
+        onDblClick: (ev) => {
+            console.log('eventID: ', ev.id);
+        },
     }, {
         id: uniqueId(),
         title: 'Hello2',
@@ -38,6 +46,9 @@ const Schedule: FC = () => {
         endDate: (() => {
             const dt = new Date(); dt.setHours(11); return dt;
         })(),
+        onDblClick: (ev) => {
+            console.log('eventID: ', ev.id);
+        },
     }, {
         id: uniqueId(),
         title: 'Hello3',
@@ -47,6 +58,9 @@ const Schedule: FC = () => {
         endDate: (() => {
             const dt = new Date(); dt.setHours(16); return dt;
         })(),
+        onDblClick: (ev) => {
+            console.log('eventID: ', ev.id);
+        },
     }, {
         id: uniqueId(),
         title: 'Hello4',
@@ -56,6 +70,12 @@ const Schedule: FC = () => {
         endDate: (() => {
             const dt = new Date(); dt.setDate(22); dt.setHours(16); return dt;
         })(),
+        onDblClick: (ev) => {
+            console.log('eventID: ', ev.id);
+        },
+        onChange: (date: Date) => {
+            console.log('onChange', date);
+        },
     }
     ]);
 

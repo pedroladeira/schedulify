@@ -1,4 +1,12 @@
+interface MinutesParams {
+    date?: Date;
+    className?: string;
+}
 
+interface GridBlockMinutes {
+    params: MinutesParams;
+    element?: HTMLDivElement;
+}
 
 interface BlockParams {
     className?: string;
@@ -7,6 +15,7 @@ interface BlockParams {
 interface GridBlock {
     params: BlockParams;
     element?: HTMLDivElement;
+    minutes: GridBlockMinutes[];
 }
 
 interface GridColumn {
@@ -17,4 +26,4 @@ interface GridColumn {
 
 type Grid = GridColumn[];
 
-export type { Grid, GridColumn, GridBlock };
+export type { Grid, GridColumn, GridBlock, GridBlockMinutes };

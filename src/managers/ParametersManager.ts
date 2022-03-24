@@ -14,7 +14,7 @@ class ParametersManager {
     }
 
     getHoursOfDay(): number {
-        return 24 * 2;
+        return 24;
     }
 
     getDaysOfWeek(): number {

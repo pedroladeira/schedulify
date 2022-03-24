@@ -8,6 +8,14 @@ class CalendarManager {
     static getHourOfDay(date: Date): number {
         return moment(date).hour();
     }
+
+    static getSelectedDate(): Date {
+        return moment().toDate();
+    }
+
+    static getWeekDateByWeekIndex(index: number, date?: Date): Date {
+        return moment(date).set('weekday', index).toDate();
+    }
 }
 
 export { CalendarManager };

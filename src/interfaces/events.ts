@@ -5,13 +5,20 @@ interface GridEventPosition {
     height: number;
 }
 
-interface GridEvent {
+interface ScheduleEvent {
     id: string;
     title: string;
     startDate: Date;
     endDate: Date;
+    data?: unknown;
+    onClick?(event: ScheduleEvent): void;
+    onDblClick?(event: ScheduleEvent): void;
+    onChange?(startDate: Date, endDate?: Date): void;
+}
+
+interface GridEvent extends ScheduleEvent {
     position?: GridEventPosition;
     collideIds?: string[];
 }
 
-export type { GridEvent };
+export type { GridEvent, ScheduleEvent };
