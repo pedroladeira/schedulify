@@ -1,4 +1,5 @@
 interface GridEventPosition {
+    id: string;
     top: number;
     left: number;
     width: number;
@@ -6,7 +7,7 @@ interface GridEventPosition {
 }
 
 interface ScheduleEvent {
-    id: string;
+    id?: string;
     title: string;
     startDate: Date;
     endDate: Date;

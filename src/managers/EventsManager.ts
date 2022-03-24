@@ -16,7 +16,7 @@ class EventsManager {
     static setNewEventPosition(event: GridEvent, top: number, left: number): void {
         const startDate = new Date(event.startDate);
         // Calc Hour
-        const indexTopCalc = top / UiHelper.getGridColumnHeight();
+        const indexTopCalc = top / UiHelper.getGridBlockHeight();
         const hourIndex = Math.ceil(indexTopCalc);
         startDate.setHours(hourIndex);
         // Calc Minutes
@@ -36,13 +36,16 @@ class EventsManager {
 
     static updatePosition(event: GridEvent, view: ScheduleView, numCollides: number = 0, index: number = 0): void {
         const colWidth = UiHelper.getGridColumnWidth();
-        const colHeight = UiHelper.getGridColumnHeight();
-        const colTop = CalendarManager.getHourOfDay(event.startDate) * colHeight;
+        const blkHeight = UiHelper.getGridBlockHeight();
+        const blkMinHeight = Math.floor(blkHeight / 4);
+        const colTop = CalendarManager.getHourOfDay(event.startDate) * blkHeight;
+        const minIndex = CalendarManager.getMinutes(event.startDate);
+        const minutes = Math.floor((minIndex / 4) * .25);
         const colNumber = view === ScheduleView.Week ? CalendarManager.getDayOfWeek(event.startDate) : 0;
-        const endHeight = (CalendarManager.getHourOfDay(event.endDate) * colHeight) - colTop;
+        const endHeight = (CalendarManager.getHourOfDay(event.endDate) * blkHeight) - colTop;
         const evtWidth = colWidth / numCollides;
         if (event.position) {
-            event.position.top = colTop;
+            event.position.top = colTop + (blkMinHeight * (minutes < 0 ? 0 : minutes));
             event.position.left = UiHelper.getAsideWidth() + (colWidth * colNumber) + (evtWidth * index);
             event.position.width = evtWidth;
             event.position.height = endHeight;

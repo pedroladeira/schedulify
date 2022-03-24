@@ -7,77 +7,17 @@ import { uniqueId } from "./helpers/UniqueId";
 
 interface ScheduleProps {
     onDblClickBlock?(date: Date): void;
+    events?: ScheduleEvent[];
 }
 
-const Schedule: FC<ScheduleProps> = ({ }) => {
+const Schedule: FC<ScheduleProps> = ({ events }) => {
     const refSchedule = useRef<HTMLDivElement>(null);
     const [schedule] = useState<CalSchedule>(new CalSchedule());
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [events] = useState<ScheduleEvent[]>([{
-        id: uniqueId(),
-        title: 'Hello',
-        startDate: (() => {
-            const dt = new Date(); dt.setHours(10); return dt;
-        })(),
-        endDate: (() => {
-            const dt = new Date(); dt.setHours(13); return dt;
-        })(),
-        onDblClick: (ev) => {
-            console.log('eventID: ', ev.id);
-        },
-    }, {
-        id: uniqueId(),
-        title: 'HelloX',
-        startDate: (() => {
-            const dt = new Date(); dt.setHours(12); return dt;
-        })(),
-        endDate: (() => {
-            const dt = new Date(); dt.setHours(13); return dt;
-        })(),
-        onDblClick: (ev) => {
-            console.log('eventID: ', ev.id);
-        },
-    }, {
-        id: uniqueId(),
-        title: 'Hello2',
-        startDate: (() => {
-            const dt = new Date(); dt.setHours(9); return dt;
-        })(),
-        endDate: (() => {
-            const dt = new Date(); dt.setHours(11); return dt;
-        })(),
-        onDblClick: (ev) => {
-            console.log('eventID: ', ev.id);
-        },
-    }, {
-        id: uniqueId(),
-        title: 'Hello3',
-        startDate: (() => {
-            const dt = new Date(); dt.setHours(15); return dt;
-        })(),
-        endDate: (() => {
-            const dt = new Date(); dt.setHours(16); return dt;
-        })(),
-        onDblClick: (ev) => {
-            console.log('eventID: ', ev.id);
-        },
-    }, {
-        id: uniqueId(),
-        title: 'Hello4',
-        startDate: (() => {
-            const dt = new Date(); dt.setDate(22); dt.setHours(15); return dt;
-        })(),
-        endDate: (() => {
-            const dt = new Date(); dt.setDate(22); dt.setHours(16); return dt;
-        })(),
-        onDblClick: (ev) => {
-            console.log('eventID: ', ev.id);
-        },
-        onChange: (date: Date) => {
-            console.log('onChange', date);
-        },
-    }
-    ]);
+    const [interEvents] = useState<ScheduleEvent[]>(events?.map((e) => {
+        !e.id && (e.id = uniqueId());
+        return e;
+    }) || []);
 
     const handleOnResizeWindow = (ev: any): void => {
         schedule && schedule.refreshData();
@@ -91,7 +31,7 @@ const Schedule: FC<ScheduleProps> = ({ }) => {
         console.log('isMobile', isMobile);
         schedule.updateParameters({
             view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events
+            events: interEvents
         });
         schedule.rebuild();
         schedule.render();
@@ -106,7 +46,7 @@ const Schedule: FC<ScheduleProps> = ({ }) => {
         if (schedule && refSchedule.current) {
             schedule.create(refSchedule.current, {
                 view: ScheduleView.Week,
-                events
+                events: interEvents
             });
             schedule.render();
         }

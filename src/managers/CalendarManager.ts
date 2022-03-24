@@ -2,11 +2,15 @@ import moment from 'moment';
 
 class CalendarManager {
     static getDayOfWeek(date: Date): number {
-        return moment(date).isoWeekday();
+        return moment(date).weekday();
     }
 
     static getHourOfDay(date: Date): number {
         return moment(date).hour();
+    }
+
+    static getMinutes(date: Date): number {
+        return moment(date).minutes();
     }
 
     static getSelectedDate(): Date {
