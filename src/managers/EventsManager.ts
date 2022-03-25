@@ -88,7 +88,6 @@ class EventsManager {
             }
         }
 
-        console.log({ listOfCollides });
         return listOfCollides;
     }
 
