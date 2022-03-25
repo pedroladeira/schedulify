@@ -4,6 +4,7 @@ declare class CalendarManager {
     static getMinutes(date: Date): number;
     static getSelectedDate(): Date;
     static getWeekDateByWeekIndex(index: number, date?: Date): Date;
+    static getHourDateByWeekIndex(index: number, date: Date, hour: number): Date;
     static isToday(date: Date): boolean;
 }
 export { CalendarManager };

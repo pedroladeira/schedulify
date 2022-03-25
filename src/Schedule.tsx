@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React from "react";
 import { ScheduleView } from "./interfaces/types";
 import { Schedule as CalSchedule } from "./schedule/Schedule";
 import { ScheduleEvent } from "./interfaces/events";
@@ -6,72 +6,87 @@ import { uniqueId } from "./helpers/UniqueId";
 import './styles/index.scss';
 
 interface ScheduleProps {
+    onClickBlock?(date: Date): void;
     onDblClickBlock?(date: Date): void;
     events?: ScheduleEvent[];
     date: Date;
 }
 
-const Schedule: FC<ScheduleProps> = ({ events, date }) => {
-    const refSchedule = useRef<HTMLDivElement>(null);
-    const [schedule] = useState<CalSchedule>(new CalSchedule());
-    const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [currDate, setCurrDate] = useState<Date>(date || new Date());
-    const [interEvents] = useState<ScheduleEvent[]>(events?.map((e) => {
-        !e.id && (e.id = uniqueId());
-        return e;
-    }) || []);
+interface ScheduleState {
+    schedule: CalSchedule;
+    isMobile: boolean;
+    date: Date;
+    events: ScheduleEvent[];
+}
 
-    const handleOnResizeWindow = (ev: any): void => {
-        schedule && schedule.refreshData();
+class Schedule extends React.Component<ScheduleProps, ScheduleState> {
+    refSchedule: React.RefObject<HTMLDivElement>;
+
+    constructor(props: ScheduleProps) {
+        super(props);
+        this.state = {
+            schedule: new CalSchedule(),
+            isMobile: false,
+            date: props.date || new Date(),
+            events: props.events?.map((e) => {
+                !e.id && (e.id = uniqueId());
+                return e;
+            }) || []
+        };
+        this.refSchedule = React.createRef<HTMLDivElement>();
+        this.handleOnResizeWindow = this.handleOnResizeWindow.bind(this);
+        this.mediaQueryListener = this.mediaQueryListener.bind(this);
     }
 
-    const mediaQueryListener = (event: MediaQueryListEvent) => {
-        setIsMobile(!event.matches);
+    updateParameters(): void {
+        const { onClickBlock, onDblClickBlock } = this.props;
+        const { schedule, isMobile, events, date } = this.state;
+        schedule.updateParameters({
+            view: isMobile ? ScheduleView.Day : ScheduleView.Week,
+            events,
+            date,
+            onClickBlock,
+            onDblClickBlock
+        });
+        schedule.rebuild();
+        schedule.render();
+    }
+
+    handleOnResizeWindow(ev: any): void {
+        const { schedule } = this.state;
+        schedule.refreshData();
+    }
+
+    mediaQueryListener(event: MediaQueryListEvent) {
+        this.setState({ isMobile: !event.matches });
+        this.updateParameters();
     };
 
-    useEffect(() => {
-        schedule.updateParameters({
-            view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events: interEvents,
-            date: currDate
-        });
-        schedule.rebuild();
-        schedule.render();
-    }, [isMobile]);
+    componentDidMount() {
+        const { onClickBlock, onDblClickBlock } = this.props;
+        const { schedule, events, date } = this.state;
 
-    useEffect(() => {
-        schedule.updateParameters({
-            view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events: interEvents,
-            date: date
-        });
-        schedule.rebuild();
-        schedule.render();
-    }, [date]);
-
-    useEffect(() => {
-        window.addEventListener('resize', handleOnResizeWindow);
+        window.addEventListener('resize', this.handleOnResizeWindow);
         const mq = window.matchMedia(`(min-width: 768px)`);
-        mq.addEventListener('change', mediaQueryListener);
-        setIsMobile(!mq.matches);
+        mq.addEventListener('change', this.mediaQueryListener);
+        this.setState({ isMobile: !mq.matches });
 
-        if (schedule && refSchedule.current) {
-            schedule.create(refSchedule.current, {
+        if (schedule && this.refSchedule.current) {
+            schedule.create(this.refSchedule.current, {
                 view: ScheduleView.Week,
-                events: interEvents,
-                date: currDate
+                events,
+                date,
+                onClickBlock,
+                onDblClickBlock
             });
             schedule.render();
         }
+    }
 
-        return () => {
-            window.removeEventListener('resize', handleOnResizeWindow);
-            mq.removeEventListener('change', mediaQueryListener);
-        };
-    }, [refSchedule]);
-
-    return (<div ref={refSchedule} />);
-};
+    render() {
+        return (<div ref={this.refSchedule}>Schedule</div>);
+    }
+}
 
 export { Schedule };
 export type { ScheduleProps };

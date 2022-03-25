@@ -10,6 +10,7 @@ interface GridBlockMinutes {
 
 interface BlockParams {
     className?: string;
+    date: Date;
 }
 
 interface GridBlock {

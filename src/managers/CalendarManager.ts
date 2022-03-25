@@ -21,6 +21,10 @@ class CalendarManager {
         return moment(date).clone().set('weekday', index).toDate();
     }
 
+    static getHourDateByWeekIndex(index: number, date: Date, hour: number): Date {
+        return moment(date).clone().set('weekday', index).set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
+    }
+
     static isToday(date: Date): boolean {
         const now = moment();
         return moment(date).isSame(now, 'day');

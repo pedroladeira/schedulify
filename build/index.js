@@ -8,12 +8,6 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
 
-var ScheduleView;
-(function (ScheduleView) {
-    ScheduleView["Week"] = "WEEK";
-    ScheduleView["Day"] = "DAY";
-})(ScheduleView || (ScheduleView = {}));
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -54,6 +48,12 @@ function __spreadArray(to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 }
+
+var ScheduleView;
+(function (ScheduleView) {
+    ScheduleView["Week"] = "WEEK";
+    ScheduleView["Day"] = "DAY";
+})(ScheduleView || (ScheduleView = {}));
 
 var UiHelper = /** @class */ (function () {
     function UiHelper() {
@@ -5765,6 +5765,9 @@ var CalendarManager = /** @class */ (function () {
     CalendarManager.getWeekDateByWeekIndex = function (index, date) {
         return moment(date).clone().set('weekday', index).toDate();
     };
+    CalendarManager.getHourDateByWeekIndex = function (index, date, hour) {
+        return moment(date).clone().set('weekday', index).set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
+    };
     CalendarManager.isToday = function (date) {
         var now = moment();
         return moment(date).isSame(now, 'day');
@@ -5890,13 +5893,19 @@ var GridBuilder = /** @class */ (function () {
     GridBuilder.build = function (columns, blocks, date) {
         var grid = Array(columns).fill(0).map(function (_, i) {
             var col = {
-                blocks: Array(blocks).fill({
-                    minutes: [
-                        GridBuilder.getBlockMinutesByIndex(0),
-                        GridBuilder.getBlockMinutesByIndex(1),
-                        GridBuilder.getBlockMinutesByIndex(2),
-                        GridBuilder.getBlockMinutesByIndex(3),
-                    ]
+                blocks: Array(blocks).fill(0).map(function (_, x) {
+                    var bl = {
+                        minutes: [
+                            GridBuilder.getBlockMinutesByIndex(0),
+                            GridBuilder.getBlockMinutesByIndex(1),
+                            GridBuilder.getBlockMinutesByIndex(2),
+                            GridBuilder.getBlockMinutesByIndex(3),
+                        ],
+                        params: {
+                            date: CalendarManager.getHourDateByWeekIndex(i, date, x)
+                        }
+                    };
+                    return bl;
                 }),
                 params: {
                     date: CalendarManager.getWeekDateByWeekIndex(i, date)
@@ -5972,6 +5981,12 @@ var ParametersManager = /** @class */ (function () {
     ParametersManager.prototype.getDate = function () {
         return this.params.date;
     };
+    ParametersManager.prototype.fireOnClickBlock = function (date) {
+        this.params.onClickBlock && this.params.onClickBlock(date);
+    };
+    ParametersManager.prototype.fireOnDblClickBlock = function (date) {
+        this.params.onDblClickBlock && this.params.onDblClickBlock(date);
+    };
     return ParametersManager;
 }());
 
@@ -6000,27 +6015,28 @@ var ScheduleRender = /** @class */ (function (_super) {
         // render ui header
         ScheduleRender.renderAsideUi(container, schedule);
         // render grid
-        ScheduleRender.renderGrid(container, schedule);
+        this.renderGrid(container, schedule);
         container.appendChild(ScheduleRender.createElement('ss-events-container'));
         element.appendChild(container);
         element.className = 'ss';
     };
-    ScheduleRender.removeAllEventsNode = function (container) {
-        while (container.childNodes.length > 0) {
-            container.removeChild(container.childNodes[0]);
-        }
-    };
-    ScheduleRender.renderGrid = function (element, schedule) {
+    ScheduleRender.prototype.renderGrid = function (element, schedule) {
+        var _this = this;
         var grid = ScheduleRender.createElementGrid();
         schedule.grid.map(function (column) {
             var elCol = ScheduleRender.createElementColumn(CalendarManager.isToday(column.params.date));
             column.blocks.map(function (block) {
-                var elBlk = ScheduleRender.createElementBlock(block);
+                var elBlk = _this.createElementBlock(block);
                 elCol.appendChild(elBlk);
             });
             grid.appendChild(elCol);
         });
         element.appendChild(grid);
+    };
+    ScheduleRender.removeAllEventsNode = function (container) {
+        while (container.childNodes.length > 0) {
+            container.removeChild(container.childNodes[0]);
+        }
     };
     ScheduleRender.renderHeaderUi = function (element, schedule) {
         var _a, _b;
@@ -6078,10 +6094,14 @@ var ScheduleRender = /** @class */ (function (_super) {
         var elem = ScheduleRender.createElement(classnames);
         return elem;
     };
-    ScheduleRender.createElementBlock = function (block) {
+    ScheduleRender.prototype.createElementBlock = function (block) {
+        var _this = this;
         var elem = ScheduleRender.createElement('ss-block');
+        elem.addEventListener('click', function () { return _this.parameters.fireOnClickBlock(block.params.date); });
+        elem.addEventListener('dblclick', function () { return _this.parameters.fireOnDblClickBlock(block.params.date); });
         block.minutes.map(function () {
-            elem.appendChild(ScheduleRender.createElement('ss-block-minutes'));
+            var elMinBlk = ScheduleRender.createElement('ss-block-minutes');
+            elem.appendChild(elMinBlk);
         });
         return elem;
     };
@@ -6219,60 +6239,70 @@ function styleInject(css, ref) {
 var css_248z = ".ss-header {\n  display: flex;\n  width: 100%;\n  border-top: 1px solid #bbb;\n}\n\n.ss-header > div:first-child {\n  width: 50px !important;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-header-column {\n  display: flex;\n  width: 100%;\n}\n\n.ss-header-column-day {\n  width: 100%;\n  padding: 4px;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-header-column-day:last-child {\n  border-right: 1px solid #bbb;\n}\n\n.ss-container {\n  position: relative;\n  display: flex;\n  width: 100%;\n  overflow: scroll;\n}\n\n.ss-aside {\n  display: flex;\n  flex-direction: column;\n  width: 50px;\n  text-align: center;\n}\n\n.ss-aside-block {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100%;\n  min-height: 40px;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-grid {\n  display: flex;\n  width: 100%;\n}\n\n.ss-column {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  border-right: 1px solid #bbb;\n  background-color: #fff;\n}\n\n.ss-column:first-child {\n  border-left: 1px solid #bbb;\n}\n\n.ss-column--is-today {\n  background-color: #f4efdc;\n}\n\n.ss-block {\n  display: flex;\n  flex-direction: column;\n  min-height: 40px;\n  border-bottom: 1px solid #bbb;\n}\n\n.ss-block-minutes {\n  height: 100%;\n}\n\n.ss-block-minutes:nth-child(2) {\n  border-bottom: 1px solid #eee;\n}\n\n.ss-block:hover {\n  background-color: rgba(200, 200, 200, 0.2);\n}\n\n.ss-event {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  width: 100px;\n  height: 100px;\n  background-color: #ccc;\n  cursor: pointer;\n}";
 styleInject(css_248z);
 
-var Schedule = function (_a) {
-    var events = _a.events, date = _a.date;
-    var refSchedule = React.useRef(null);
-    var schedule = React.useState(new Schedule$1())[0];
-    var _b = React.useState(false), isMobile = _b[0], setIsMobile = _b[1];
-    var _c = React.useState(date || new Date()), currDate = _c[0]; _c[1];
-    var interEvents = React.useState((events === null || events === void 0 ? void 0 : events.map(function (e) {
-        !e.id && (e.id = uniqueId());
-        return e;
-    })) || [])[0];
-    var handleOnResizeWindow = function (ev) {
-        schedule && schedule.refreshData();
-    };
-    var mediaQueryListener = function (event) {
-        setIsMobile(!event.matches);
-    };
-    React.useEffect(function () {
+var Schedule = /** @class */ (function (_super) {
+    __extends(Schedule, _super);
+    function Schedule(props) {
+        var _this = this;
+        var _a;
+        _this = _super.call(this, props) || this;
+        _this.state = {
+            schedule: new Schedule$1(),
+            isMobile: false,
+            date: props.date || new Date(),
+            events: ((_a = props.events) === null || _a === void 0 ? void 0 : _a.map(function (e) {
+                !e.id && (e.id = uniqueId());
+                return e;
+            })) || []
+        };
+        _this.refSchedule = React__default["default"].createRef();
+        _this.handleOnResizeWindow = _this.handleOnResizeWindow.bind(_this);
+        _this.mediaQueryListener = _this.mediaQueryListener.bind(_this);
+        return _this;
+    }
+    Schedule.prototype.updateParameters = function () {
+        var _a = this.props, onClickBlock = _a.onClickBlock, onDblClickBlock = _a.onDblClickBlock;
+        var _b = this.state, schedule = _b.schedule, isMobile = _b.isMobile, events = _b.events, date = _b.date;
         schedule.updateParameters({
             view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events: interEvents,
-            date: currDate
+            events: events,
+            date: date,
+            onClickBlock: onClickBlock,
+            onDblClickBlock: onDblClickBlock
         });
         schedule.rebuild();
         schedule.render();
-    }, [isMobile]);
-    React.useEffect(function () {
-        schedule.updateParameters({
-            view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events: interEvents,
-            date: date
-        });
-        schedule.rebuild();
-        schedule.render();
-    }, [date]);
-    React.useEffect(function () {
-        window.addEventListener('resize', handleOnResizeWindow);
+    };
+    Schedule.prototype.handleOnResizeWindow = function (ev) {
+        var schedule = this.state.schedule;
+        schedule.refreshData();
+    };
+    Schedule.prototype.mediaQueryListener = function (event) {
+        this.setState({ isMobile: !event.matches });
+        this.updateParameters();
+    };
+    Schedule.prototype.componentDidMount = function () {
+        var _a = this.props, onClickBlock = _a.onClickBlock, onDblClickBlock = _a.onDblClickBlock;
+        var _b = this.state, schedule = _b.schedule, events = _b.events, date = _b.date;
+        window.addEventListener('resize', this.handleOnResizeWindow);
         var mq = window.matchMedia("(min-width: 768px)");
-        mq.addEventListener('change', mediaQueryListener);
-        setIsMobile(!mq.matches);
-        if (schedule && refSchedule.current) {
-            schedule.create(refSchedule.current, {
+        mq.addEventListener('change', this.mediaQueryListener);
+        this.setState({ isMobile: !mq.matches });
+        if (schedule && this.refSchedule.current) {
+            schedule.create(this.refSchedule.current, {
                 view: ScheduleView.Week,
-                events: interEvents,
-                date: currDate
+                events: events,
+                date: date,
+                onClickBlock: onClickBlock,
+                onDblClickBlock: onDblClickBlock
             });
             schedule.render();
         }
-        return function () {
-            window.removeEventListener('resize', handleOnResizeWindow);
-            mq.removeEventListener('change', mediaQueryListener);
-        };
-    }, [refSchedule]);
-    return (React__default["default"].createElement("div", { ref: refSchedule }));
-};
+    };
+    Schedule.prototype.render = function () {
+        return (React__default["default"].createElement("div", { ref: this.refSchedule }, "Schedule"));
+    };
+    return Schedule;
+}(React__default["default"].Component));
 
 exports.Schedule = Schedule;
 //# sourceMappingURL=index.js.map

@@ -10,5 +10,7 @@ declare class ParametersManager {
     hasHeader(): boolean;
     getEvents(): GridEvent[];
     getDate(): Date;
+    fireOnClickBlock(date: Date): void;
+    fireOnDblClickBlock(date: Date): void;
 }
 export { ParametersManager };

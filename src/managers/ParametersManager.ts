@@ -32,6 +32,14 @@ class ParametersManager {
     getDate(): Date {
         return this.params.date;
     }
+
+    fireOnClickBlock(date: Date): void {
+        this.params.onClickBlock && this.params.onClickBlock(date);
+    }
+
+    fireOnDblClickBlock(date: Date): void {
+        this.params.onDblClickBlock && this.params.onDblClickBlock(date);
+    }
 }
 
 export { ParametersManager };

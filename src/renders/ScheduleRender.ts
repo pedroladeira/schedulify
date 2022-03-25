@@ -13,11 +13,24 @@ class ScheduleRender extends Render {
         // render ui header
         ScheduleRender.renderAsideUi(container, schedule);
         // render grid
-        ScheduleRender.renderGrid(container, schedule);
+        this.renderGrid(container, schedule);
 
         container.appendChild(ScheduleRender.createElement('ss-events-container'));
         element.appendChild(container);
         element.className = 'ss';
+    }
+
+    private renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
+        const grid = ScheduleRender.createElementGrid();
+        schedule.grid.map((column) => {
+            const elCol = ScheduleRender.createElementColumn(CalendarManager.isToday(column.params.date));
+            column.blocks.map((block) => {
+                const elBlk = this.createElementBlock(block);
+                elCol.appendChild(elBlk);
+            });
+            grid.appendChild(elCol);
+        });
+        element.appendChild(grid);
     }
 
     static removeAllEventsNode(container: HTMLDivElement): void {
@@ -26,18 +39,6 @@ class ScheduleRender extends Render {
         }
     }
 
-    private static renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
-        const grid = ScheduleRender.createElementGrid();
-        schedule.grid.map((column) => {
-            const elCol = ScheduleRender.createElementColumn(CalendarManager.isToday(column.params.date));
-            column.blocks.map((block) => {
-                const elBlk = ScheduleRender.createElementBlock(block);
-                elCol.appendChild(elBlk);
-            });
-            grid.appendChild(elCol);
-        });
-        element.appendChild(grid);
-    }
 
     private static renderHeaderUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const elHeader = ScheduleRender.createElementHeader();
@@ -102,10 +103,13 @@ class ScheduleRender extends Render {
         return elem;
     }
 
-    private static createElementBlock(block: GridBlock): HTMLDivElement {
+    private createElementBlock(block: GridBlock): HTMLDivElement {
         const elem = ScheduleRender.createElement('ss-block');
+        elem.addEventListener('click', () => this.parameters.fireOnClickBlock(block.params.date));
+        elem.addEventListener('dblclick', () => this.parameters.fireOnDblClickBlock(block.params.date));
         block.minutes.map(() => {
-            elem.appendChild(ScheduleRender.createElement('ss-block-minutes'));
+            const elMinBlk = ScheduleRender.createElement('ss-block-minutes');
+            elem.appendChild(elMinBlk);
         })
         return elem;
     }
