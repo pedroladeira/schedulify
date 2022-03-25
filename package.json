@@ -1,6 +1,6 @@
 {
-  "name": "schedulify",
-  "version": "0.0.1",
+  "name": "skedule",
+  "version": "0.0.2",
   "description": "A super schedule",
   "main": "build/index.js",
   "module": "build/index.esm.js",
@@ -8,7 +8,8 @@
     "build"
   ],
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,21 +27,21 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
     "@types/react": "^17.0.43",
     "css-loader": "^6.7.1",
     "moment": "^2.29.1",
     "node-sass": "^7.0.1",
     "react": "^17.0.2",
-    "rollup": "^2.70.0",
+    "rollup": "^2.70.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.31.2",
     "sass": "^1.49.9",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2"
   },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   }
 }
