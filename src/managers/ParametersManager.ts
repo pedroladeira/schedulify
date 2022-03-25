@@ -28,6 +28,10 @@ class ParametersManager {
     getEvents(): GridEvent[] {
         return this.params.events || [];
     }
+
+    getDate(): Date {
+        return this.params.date;
+    }
 }
 
 export { ParametersManager };

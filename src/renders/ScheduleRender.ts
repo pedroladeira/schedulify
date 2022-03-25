@@ -1,6 +1,7 @@
 import { ScheduleGrid } from '../interfaces/schedule';
 import { GridBlock } from '../interfaces/grid';
 import { Render } from './Render';
+import { CalendarManager } from '../managers/CalendarManager';
 
 class ScheduleRender extends Render {
 
@@ -28,7 +29,7 @@ class ScheduleRender extends Render {
     private static renderGrid(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const grid = ScheduleRender.createElementGrid();
         schedule.grid.map((column) => {
-            const elCol = ScheduleRender.createElementColumn();
+            const elCol = ScheduleRender.createElementColumn(CalendarManager.isToday(column.params.date));
             column.blocks.map((block) => {
                 const elBlk = ScheduleRender.createElementBlock(block);
                 elCol.appendChild(elBlk);
@@ -94,8 +95,10 @@ class ScheduleRender extends Render {
         return elem;
     }
 
-    private static createElementColumn(): HTMLDivElement {
-        const elem = ScheduleRender.createElement('ss-column');
+    private static createElementColumn(isToday: boolean): HTMLDivElement {
+        let classnames = 'ss-column';
+        isToday && (classnames += ' ss-column--is-today')
+        const elem = ScheduleRender.createElement(classnames);
         return elem;
     }
 

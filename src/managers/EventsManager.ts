@@ -95,7 +95,7 @@ class EventsManager {
 
     private static addEventCollision(event: GridEvent, collision: GridEvent): void {
         !event.collideIds && (event.collideIds = []);
-        const id: string = collision.id;
+        const id: string = collision.id || '';
         !event.collideIds.includes(id) && (event.collideIds?.push(id));
     }
 

@@ -1,8 +1,6 @@
 import { EventsManager } from '../managers/EventsManager';
 import { ScheduleGrid } from '../interfaces/schedule';
-import { ParametersManager } from '../managers/ParametersManager';
 import { ScheduleEvent } from '../interfaces/events';
-import { GridBlock } from '../interfaces/grid';
 import { Render } from './Render';
 
 class ScheduleEventRender extends Render {

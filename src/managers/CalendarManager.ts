@@ -18,7 +18,12 @@ class CalendarManager {
     }
 
     static getWeekDateByWeekIndex(index: number, date?: Date): Date {
-        return moment(date).set('weekday', index).toDate();
+        return moment(date).clone().set('weekday', index).toDate();
+    }
+
+    static isToday(date: Date): boolean {
+        const now = moment();
+        return moment(date).isSame(now, 'day');
     }
 }
 
