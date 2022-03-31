@@ -1,6 +1,21 @@
 import moment from 'moment';
+import { ScheduleParams } from '../interfaces/parameters';
 
 class CalendarManager {
+    params: ScheduleParams;
+
+    constructor(params: ScheduleParams) {
+        this.params = params;
+    }
+
+    public getSelectedDate(): Date {
+        return moment(this.params.date).toDate();
+    }
+
+    public getWeekDateByWeekIndex(index: number, date?: Date): Date {
+        return moment(date).clone().set('weekday', index).toDate();
+    }
+
     static getDayOfWeek(date: Date): number {
         return moment(date).weekday();
     }

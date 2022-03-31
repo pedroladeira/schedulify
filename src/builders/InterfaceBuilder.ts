@@ -11,11 +11,17 @@ class InterfaceBuilder {
     }
 
     static buildHeader(params: ParametersManager): HeaderUi {
-        let days;
+        const date = params.getCalendarManager().getSelectedDate();
+        let days: string[] = [];
+        const WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Quar', 'Qui', 'Sex', 'Sab'];
         if (params.getView() === ScheduleView.Week) {
-            days = ['Dom', 'Seg', 'Ter', 'Quar', 'Qui', 'Sex', 'Sab'];
+            Array(7).fill(0).forEach((_, i) => {
+                const wd = params.getCalendarManager().getWeekDateByWeekIndex(i, date);
+                days.push(`${WEEK_DAYS[i]} - ${wd.getDate()}`);
+            })
         } else {
-            days = ['Dom'];
+            const wd = params.getCalendarManager().getWeekDateByWeekIndex(0, date);
+            days.push(`${WEEK_DAYS[0]} - ${wd.getDate()}`);
         }
 
         return {

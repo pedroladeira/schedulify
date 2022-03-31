@@ -1,12 +1,19 @@
 import { GridEvent } from '../interfaces/events';
 import { ScheduleParams } from '../interfaces/parameters';
 import { ScheduleView } from '../interfaces/types';
+import { CalendarManager } from './CalendarManager';
 
 class ParametersManager {
     params: ScheduleParams;
+    calendarManager: CalendarManager;
 
-    constructor(params: ScheduleParams) {
+    constructor(params: ScheduleParams, calendarManager: CalendarManager) {
         this.params = params;
+        this.calendarManager = calendarManager;
+    }
+
+    getCalendarManager(): CalendarManager {
+        return this.calendarManager;
     }
 
     getView(): ScheduleView {
