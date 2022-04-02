@@ -1,11 +1,10 @@
 import moment from 'moment';
 import { ScheduleParams } from '../interfaces/parameters';
+import { Parameters } from './Parameters';
 
-class CalendarManager {
-    params: ScheduleParams;
-
+class CalendarManager extends Parameters {
     constructor(params: ScheduleParams) {
-        this.params = params;
+        super(params);
     }
 
     public getSelectedDate(): Date {

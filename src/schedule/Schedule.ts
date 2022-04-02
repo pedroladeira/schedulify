@@ -15,7 +15,7 @@ class Schedule {
     scheduleRender?: ScheduleRender;
     scheduleEventRender?: ScheduleEventRender;
     element?: HTMLDivElement;
-    created: boolean = false;
+    created = false;
 
     create(element: HTMLDivElement, params: ScheduleParams): void {
         this.calendarManager = new CalendarManager(params);
@@ -40,12 +40,12 @@ class Schedule {
             ),
             ui: InterfaceBuilder.build(this.paramsManager),
             events: this.paramsManager.getEvents(),
-        }
+        };
     }
 
     updateParameters(params: ScheduleParams): void {
-        if (this.calendarManager)
-            this.paramsManager = new ParametersManager(params, this.calendarManager);
+        this.paramsManager?.updateParameters(params);
+        this.calendarManager?.updateParameters(params);
     }
 
     render(): void {

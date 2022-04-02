@@ -1,8 +1,9 @@
-import { GridEvent } from "../interfaces/events";
-import { ParametersManager } from "./ParametersManager";
-import { UiHelper } from "../helpers/UiHelper";
-import { CalendarManager } from "./CalendarManager";
+import moment from 'moment';
+import { GridEvent } from '../interfaces/events';
+import { ParametersManager } from './ParametersManager';
+import { UiHelper } from '../helpers/UiHelper';
 import { ScheduleView } from '../interfaces/types';
+import { Grid } from '../interfaces/grid';
 
 class EventsManager {
 
@@ -12,51 +13,35 @@ class EventsManager {
         });
     }
 
-    static setNewEventPosition(event: GridEvent, top: number, left: number): void {
-        const startDate = new Date(event.startDate);
-        // Calc Hour
-        const indexTopCalc = top / UiHelper.getGridBlockHeight();
-        const hourIndex = Math.ceil(indexTopCalc);
-        startDate.setHours(hourIndex);
-        // Calc Minutes
-        const minutesIndex = indexTopCalc - Math.floor(indexTopCalc);
-        if (minutesIndex < 0.2) startDate.setMinutes(0);
-        else if (minutesIndex <= 0.5) startDate.setMinutes(15);
-        else if (minutesIndex <= 0.7) startDate.setMinutes(30);
-        else startDate.setMinutes(45);
-        // Calc Day
-        const indexLeftCalc = (left - UiHelper.getAsideWidth()) / UiHelper.getGridColumnWidth();
-        const colIndex = Math.floor(indexLeftCalc < 0 ? 0 : indexLeftCalc);
-
-        startDate.setSeconds(0);
-        // OnChange Event
-        event.onChange && event.onChange(CalendarManager.getWeekDateByWeekIndex(colIndex, startDate));
-    }
-
-    static updatePosition(event: GridEvent, view: ScheduleView, numCollides: number = 0, index: number = 0): void {
+    static updatePosition(event: GridEvent, grid: Grid, numCollides = 0): void {
         const colWidth = UiHelper.getGridColumnWidth();
-        const blkHeight = UiHelper.getGridBlockHeight();
-        const blkMinHeight = Math.floor(blkHeight / 4);
-        const colTop = CalendarManager.getHourOfDay(event.startDate) * blkHeight;
-        const minIndex = CalendarManager.getMinutes(event.startDate);
-        const minutes = Math.floor((minIndex / 4) * .25);
-        const colNumber = view === ScheduleView.Week ? CalendarManager.getDayOfWeek(event.startDate) : 0;
-        const endHeight = (CalendarManager.getHourOfDay(event.endDate) * blkHeight) - colTop;
         const evtWidth = colWidth / numCollides;
-        if (event.position) {
-            event.position.top = colTop + (blkMinHeight * (minutes < 0 ? 0 : minutes));
-            event.position.left = UiHelper.getAsideWidth() + (colWidth * colNumber) + (evtWidth * index);
-            event.position.width = evtWidth;
-            event.position.height = endHeight;
-        }
+        const minHeight = UiHelper.getGridBlockHeight() / 4;
+        const endHeight = (event.duration * minHeight) / 15;
+        grid.forEach((g) => {
+            g.blocks.forEach((blk) => {
+                blk.minutes.forEach((min) => {
+                    const initDate = moment(min.params.date);
+                    const endDate = initDate.clone().add(15, 'minutes');
+                    if (min.element && moment(event.startDate).isSameOrAfter(initDate) && moment(event.startDate).isBefore(endDate)) {
+                        event.position = {
+                            top: min.element.offsetTop,
+                            left: min.element.offsetLeft,
+                            width: evtWidth,
+                            height: endHeight,
+                        };
+                    }
+                });
+            });
+        });
     }
 
     static groupCollideEvents(events: GridEvent[]): GridEvent[][] {
         const listOfCollides: GridEvent[][] = [];
         const listEvents = [...events];
 
-        for (var a = 0; a < events.length; a++) {
-            for (var b = a + 1; b < events.length; b++) {
+        for (let a = 0; a < events.length; a++) {
+            for (let b = a + 1; b < events.length; b++) {
 
                 if (EventsManager.eventsCollide(events[a], events[b])) {
                     EventsManager.addEventCollision(events[a], events[b]);
@@ -98,9 +83,11 @@ class EventsManager {
     }
 
     private static eventsCollide(a: GridEvent, b: GridEvent): boolean {
-        return (a.startDate < b.startDate && a.endDate >= b.startDate) ||
-            (a.startDate > b.startDate && a.startDate <= b.endDate) ||
-            (a.startDate > b.startDate && a.endDate <= b.endDate);
+        const aEnd = moment(a.startDate).add('minutes', a.duration).toDate();
+        const bEnd = moment(b.startDate).add('minutes', b.duration).toDate();
+        return (a.startDate < b.startDate && aEnd >= b.startDate) ||
+            (a.startDate > b.startDate && a.startDate <= bEnd) ||
+            (a.startDate > b.startDate && aEnd <= bEnd);
     }
 
     private static createDefaultPosition(event: GridEvent, params: ParametersManager): void {
@@ -113,4 +100,4 @@ class EventsManager {
     }
 }
 
-export { EventsManager }
+export { EventsManager };

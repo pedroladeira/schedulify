@@ -1,9 +1,10 @@
 import { ScheduleGrid } from '../interfaces/schedule';
-import { ScheduleEvent } from '../interfaces/events';
+import { GridEvent } from '../interfaces/events';
 import { Render } from './Render';
 declare class ScheduleEventRender extends Render {
     selectedElement?: HTMLDivElement;
-    selectedEvent?: ScheduleEvent;
+    selectedEvent?: GridEvent;
+    hasMoved?: boolean;
     renderEvents(element: HTMLDivElement, schedule: ScheduleGrid): void;
     static removeAllEventsNode(container: HTMLDivElement): void;
     private static createElementEvent;

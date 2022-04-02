@@ -1,5 +1,5 @@
 interface MinutesParams {
-    date?: Date;
+    date?: string;
     className?: string;
 }
 interface GridBlockMinutes {

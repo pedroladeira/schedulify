@@ -1,6 +1,6 @@
 import { ScheduleParams } from '../interfaces/parameters';
-declare class CalendarManager {
-    params: ScheduleParams;
+import { Parameters } from './Parameters';
+declare class CalendarManager extends Parameters {
     constructor(params: ScheduleParams);
     getSelectedDate(): Date;
     getWeekDateByWeekIndex(index: number, date?: Date): Date;

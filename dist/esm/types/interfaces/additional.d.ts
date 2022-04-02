@@ -9,3 +9,4 @@ interface InterfaceUi {
     header?: HeaderUi;
     sideHours?: SideHours;
 }
+export type { SideHours, InterfaceUi, HeaderUi };

@@ -1,6 +1,6 @@
 {
   "name": "skedule",
-  "version": "0.0.8",
+  "version": "0.0.13",
   "description": "A super schedule",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -47,6 +47,7 @@
     "typescript": "^4.6.2"
   },
   "peerDependencies": {
-    "react": ">=17.0.2"
+    "react": ">=17.0.2",
+    "react-dom": ">=17.0.2"
   }
 }

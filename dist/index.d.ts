@@ -4,24 +4,24 @@ interface ScheduleEvent {
     id?: string;
     title: string;
     startDate: Date;
-    endDate: Date;
+    duration: number;
     data?: unknown;
     onClick?(event: ScheduleEvent): void;
     onDblClick?(event: ScheduleEvent): void;
-    onChange?(startDate: Date, endDate?: Date): void;
+    onChange?(startDate: Date): void;
 }
 
-interface ScheduleProps {
+interface SkeduleProps {
     onClickBlock?(date: Date): void;
     onDblClickBlock?(date: Date): void;
     events?: ScheduleEvent[];
     date: Date;
 }
-declare const Schedule: FC<ScheduleProps>;
+declare const Skedule: FC<SkeduleProps>;
 
 declare enum ScheduleView {
     Week = "WEEK",
     Day = "DAY"
 }
 
-export { Schedule, ScheduleEvent, ScheduleView };
+export { ScheduleEvent, ScheduleView, Skedule };

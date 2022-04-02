@@ -9,11 +9,11 @@ interface ScheduleEvent {
     id?: string;
     title: string;
     startDate: Date;
-    endDate: Date;
+    duration: number;
     data?: unknown;
     onClick?(event: ScheduleEvent): void;
     onDblClick?(event: ScheduleEvent): void;
-    onChange?(startDate: Date, endDate?: Date): void;
+    onChange?(startDate: Date): void;
 }
 
 interface GridEvent extends ScheduleEvent {

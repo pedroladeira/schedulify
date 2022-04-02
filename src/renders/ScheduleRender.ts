@@ -2,11 +2,12 @@ import { ScheduleGrid } from '../interfaces/schedule';
 import { GridBlock } from '../interfaces/grid';
 import { Render } from './Render';
 import { CalendarManager } from '../managers/CalendarManager';
+import moment from 'moment';
 
 class ScheduleRender extends Render {
 
     render(element: HTMLDivElement, schedule: ScheduleGrid): void {
-        ScheduleRender.removeAllEventsNode(element as HTMLDivElement)
+        ScheduleRender.removeAllEventsNode(element as HTMLDivElement);
         const container = ScheduleRender.createElementContainer();
         // render ui header
         ScheduleRender.renderHeaderUi(element, schedule);
@@ -39,7 +40,6 @@ class ScheduleRender extends Render {
         }
     }
 
-
     private static renderHeaderUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const elHeader = ScheduleRender.createElementHeader();
         if (schedule.ui.header?.hasAside) {
@@ -47,7 +47,7 @@ class ScheduleRender extends Render {
             elHeader.appendChild(col);
         }
         const colHeaders = ScheduleRender.createElementHeaderColumn();
-        schedule.ui.header?.days.map((day, i) => {
+        schedule.ui.header?.days.map((day: string) => {
             const col = ScheduleRender.createElementHeaderColumnDay(day);
             colHeaders.appendChild(col);
         });
@@ -57,7 +57,7 @@ class ScheduleRender extends Render {
 
     private static renderAsideUi(element: HTMLDivElement, schedule: ScheduleGrid): void {
         const aside = ScheduleRender.createElementAside();
-        schedule.ui.sideHours?.hours.map((block) => {
+        schedule.ui.sideHours?.hours.map((block: string) => {
             const elBlk = ScheduleRender.createElement('ss-aside-block');
             elBlk.innerHTML = block;
             aside.appendChild(elBlk);
@@ -98,7 +98,7 @@ class ScheduleRender extends Render {
 
     private static createElementColumn(isToday: boolean): HTMLDivElement {
         let classnames = 'ss-column';
-        isToday && (classnames += ' ss-column--is-today')
+        isToday && (classnames += ' ss-column--is-today');
         const elem = ScheduleRender.createElement(classnames);
         return elem;
     }
@@ -107,10 +107,12 @@ class ScheduleRender extends Render {
         const elem = ScheduleRender.createElement('ss-block');
         elem.addEventListener('click', () => this.parameters.fireOnClickBlock(block.params.date));
         elem.addEventListener('dblclick', () => this.parameters.fireOnDblClickBlock(block.params.date));
-        block.minutes.map(() => {
+        block.minutes.map((min) => {
             const elMinBlk = ScheduleRender.createElement('ss-block-minutes');
+            min.params.date && elMinBlk.setAttribute('data-dt', moment(min.params.date).format());
+            min.element = elMinBlk;
             elem.appendChild(elMinBlk);
-        })
+        });
         return elem;
     }
 }

@@ -2,8 +2,8 @@ import { GridEvent } from '../interfaces/events';
 import { ScheduleParams } from '../interfaces/parameters';
 import { ScheduleView } from '../interfaces/types';
 import { CalendarManager } from './CalendarManager';
-declare class ParametersManager {
-    params: ScheduleParams;
+import { Parameters } from './Parameters';
+declare class ParametersManager extends Parameters {
     calendarManager: CalendarManager;
     constructor(params: ScheduleParams, calendarManager: CalendarManager);
     getCalendarManager(): CalendarManager;

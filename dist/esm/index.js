@@ -47,24 +47,6 @@ function __spreadArray(to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 }
 
-var UiHelper = /** @class */ (function () {
-    function UiHelper() {
-    }
-    UiHelper.getGridColumnWidth = function () {
-        var columns = document.getElementsByClassName('ss-column');
-        if (columns.length > 0)
-            return columns[0].clientWidth + 1;
-        return 0;
-    };
-    UiHelper.getGridBlockHeight = function () {
-        return 41;
-    };
-    UiHelper.getAsideWidth = function () {
-        return 49;
-    };
-    return UiHelper;
-}());
-
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function commonjsRequire (path) {
@@ -5739,39 +5721,22 @@ var moment$1 = {exports: {}};
 
 var moment = moment$1.exports;
 
-var CalendarManager = /** @class */ (function () {
-    function CalendarManager(params) {
-        this.params = params;
+var UiHelper = /** @class */ (function () {
+    function UiHelper() {
     }
-    CalendarManager.prototype.getSelectedDate = function () {
-        return moment(this.params.date).toDate();
+    UiHelper.getGridColumnWidth = function () {
+        var columns = document.getElementsByClassName('ss-column');
+        if (columns.length > 0)
+            return columns[0].clientWidth + 1;
+        return 0;
     };
-    CalendarManager.prototype.getWeekDateByWeekIndex = function (index, date) {
-        return moment(date).clone().set('weekday', index).toDate();
+    UiHelper.getGridBlockHeight = function () {
+        return 41;
     };
-    CalendarManager.getDayOfWeek = function (date) {
-        return moment(date).weekday();
+    UiHelper.getAsideWidth = function () {
+        return 49;
     };
-    CalendarManager.getHourOfDay = function (date) {
-        return moment(date).hour();
-    };
-    CalendarManager.getMinutes = function (date) {
-        return moment(date).minutes();
-    };
-    CalendarManager.getSelectedDate = function () {
-        return moment().toDate();
-    };
-    CalendarManager.getWeekDateByWeekIndex = function (index, date) {
-        return moment(date).clone().set('weekday', index).toDate();
-    };
-    CalendarManager.getHourDateByWeekIndex = function (index, date, hour) {
-        return moment(date).clone().set('weekday', index).set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
-    };
-    CalendarManager.isToday = function (date) {
-        var now = moment();
-        return moment(date).isSame(now, 'day');
-    };
-    return CalendarManager;
+    return UiHelper;
 }());
 
 var EventsManager = /** @class */ (function () {
@@ -5782,47 +5747,28 @@ var EventsManager = /** @class */ (function () {
             EventsManager.createDefaultPosition(event, params);
         });
     };
-    EventsManager.setNewEventPosition = function (event, top, left) {
-        var startDate = new Date(event.startDate);
-        // Calc Hour
-        var indexTopCalc = top / UiHelper.getGridBlockHeight();
-        var hourIndex = Math.ceil(indexTopCalc);
-        startDate.setHours(hourIndex);
-        // Calc Minutes
-        var minutesIndex = indexTopCalc - Math.floor(indexTopCalc);
-        if (minutesIndex < 0.2)
-            startDate.setMinutes(0);
-        else if (minutesIndex <= 0.5)
-            startDate.setMinutes(15);
-        else if (minutesIndex <= 0.7)
-            startDate.setMinutes(30);
-        else
-            startDate.setMinutes(45);
-        // Calc Day
-        var indexLeftCalc = (left - UiHelper.getAsideWidth()) / UiHelper.getGridColumnWidth();
-        var colIndex = Math.floor(indexLeftCalc < 0 ? 0 : indexLeftCalc);
-        startDate.setSeconds(0);
-        // OnChange Event
-        event.onChange && event.onChange(CalendarManager.getWeekDateByWeekIndex(colIndex, startDate));
-    };
-    EventsManager.updatePosition = function (event, view, numCollides, index) {
+    EventsManager.updatePosition = function (event, grid, numCollides) {
         if (numCollides === void 0) { numCollides = 0; }
-        if (index === void 0) { index = 0; }
         var colWidth = UiHelper.getGridColumnWidth();
-        var blkHeight = UiHelper.getGridBlockHeight();
-        var blkMinHeight = Math.floor(blkHeight / 4);
-        var colTop = CalendarManager.getHourOfDay(event.startDate) * blkHeight;
-        var minIndex = CalendarManager.getMinutes(event.startDate);
-        var minutes = Math.floor((minIndex / 4) * .25);
-        var colNumber = view === ScheduleView.Week ? CalendarManager.getDayOfWeek(event.startDate) : 0;
-        var endHeight = (CalendarManager.getHourOfDay(event.endDate) * blkHeight) - colTop;
         var evtWidth = colWidth / numCollides;
-        if (event.position) {
-            event.position.top = colTop + (blkMinHeight * (minutes < 0 ? 0 : minutes));
-            event.position.left = UiHelper.getAsideWidth() + (colWidth * colNumber) + (evtWidth * index);
-            event.position.width = evtWidth;
-            event.position.height = endHeight;
-        }
+        var minHeight = UiHelper.getGridBlockHeight() / 4;
+        var endHeight = (event.duration * minHeight) / 15;
+        grid.forEach(function (g) {
+            g.blocks.forEach(function (blk) {
+                blk.minutes.forEach(function (min) {
+                    var initDate = moment(min.params.date);
+                    var endDate = initDate.clone().add(15, 'minutes');
+                    if (min.element && moment(event.startDate).isSameOrAfter(initDate) && moment(event.startDate).isBefore(endDate)) {
+                        event.position = {
+                            top: min.element.offsetTop,
+                            left: min.element.offsetLeft,
+                            width: evtWidth,
+                            height: endHeight,
+                        };
+                    }
+                });
+            });
+        });
     };
     EventsManager.groupCollideEvents = function (events) {
         var listOfCollides = [];
@@ -5870,9 +5816,11 @@ var EventsManager = /** @class */ (function () {
         !event.collideIds.includes(id) && ((_a = event.collideIds) === null || _a === void 0 ? void 0 : _a.push(id));
     };
     EventsManager.eventsCollide = function (a, b) {
-        return (a.startDate < b.startDate && a.endDate >= b.startDate) ||
-            (a.startDate > b.startDate && a.startDate <= b.endDate) ||
-            (a.startDate > b.startDate && a.endDate <= b.endDate);
+        var aEnd = moment(a.startDate).add('minutes', a.duration).toDate();
+        var bEnd = moment(b.startDate).add('minutes', b.duration).toDate();
+        return (a.startDate < b.startDate && aEnd >= b.startDate) ||
+            (a.startDate > b.startDate && a.startDate <= bEnd) ||
+            (a.startDate > b.startDate && aEnd <= bEnd);
     };
     EventsManager.createDefaultPosition = function (event, params) {
         event.position = {
@@ -5885,6 +5833,52 @@ var EventsManager = /** @class */ (function () {
     return EventsManager;
 }());
 
+var Parameters = /** @class */ (function () {
+    function Parameters(params) {
+        this.params = params;
+    }
+    Parameters.prototype.updateParameters = function (params) {
+        this.params = params;
+    };
+    return Parameters;
+}());
+
+var CalendarManager = /** @class */ (function (_super) {
+    __extends(CalendarManager, _super);
+    function CalendarManager(params) {
+        return _super.call(this, params) || this;
+    }
+    CalendarManager.prototype.getSelectedDate = function () {
+        return moment(this.params.date).toDate();
+    };
+    CalendarManager.prototype.getWeekDateByWeekIndex = function (index, date) {
+        return moment(date).clone().set('weekday', index).toDate();
+    };
+    CalendarManager.getDayOfWeek = function (date) {
+        return moment(date).weekday();
+    };
+    CalendarManager.getHourOfDay = function (date) {
+        return moment(date).hour();
+    };
+    CalendarManager.getMinutes = function (date) {
+        return moment(date).minutes();
+    };
+    CalendarManager.getSelectedDate = function () {
+        return moment().toDate();
+    };
+    CalendarManager.getWeekDateByWeekIndex = function (index, date) {
+        return moment(date).clone().set('weekday', index).toDate();
+    };
+    CalendarManager.getHourDateByWeekIndex = function (index, date, hour) {
+        return moment(date).clone().set('weekday', index).set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
+    };
+    CalendarManager.isToday = function (date) {
+        var now = moment();
+        return moment(date).isSame(now, 'day');
+    };
+    return CalendarManager;
+}(Parameters));
+
 var GridBuilder = /** @class */ (function () {
     function GridBuilder() {
     }
@@ -5892,15 +5886,16 @@ var GridBuilder = /** @class */ (function () {
         var grid = Array(columns).fill(0).map(function (_, i) {
             var col = {
                 blocks: Array(blocks).fill(0).map(function (_, x) {
+                    var dateBlock = CalendarManager.getHourDateByWeekIndex(i, date, x);
                     var bl = {
                         minutes: [
-                            GridBuilder.getBlockMinutesByIndex(0),
-                            GridBuilder.getBlockMinutesByIndex(1),
-                            GridBuilder.getBlockMinutesByIndex(2),
-                            GridBuilder.getBlockMinutesByIndex(3),
+                            GridBuilder.getBlockMinutesByIndex(0, dateBlock),
+                            GridBuilder.getBlockMinutesByIndex(1, dateBlock),
+                            GridBuilder.getBlockMinutesByIndex(2, dateBlock),
+                            GridBuilder.getBlockMinutesByIndex(3, dateBlock),
                         ],
                         params: {
-                            date: CalendarManager.getHourDateByWeekIndex(i, date, x)
+                            date: dateBlock
                         }
                     };
                     return bl;
@@ -5913,9 +5908,11 @@ var GridBuilder = /** @class */ (function () {
         });
         return grid;
     };
-    GridBuilder.getBlockMinutesByIndex = function (index) {
+    GridBuilder.getBlockMinutesByIndex = function (index, date) {
         return {
-            params: {}
+            params: {
+                date: moment(date).clone().set('minutes', 15 * index).format()
+            }
         };
     };
     return GridBuilder;
@@ -5939,7 +5936,7 @@ var InterfaceBuilder = /** @class */ (function () {
         if (params.getView() === ScheduleView.Week) {
             Array(7).fill(0).forEach(function (_, i) {
                 var wd = params.getCalendarManager().getWeekDateByWeekIndex(i, date);
-                days.push("".concat(WEEK_DAYS[i], " - ").concat(wd.getDate(), " ").concat(i));
+                days.push("".concat(WEEK_DAYS[i], " - ").concat(wd.getDate()));
             });
         }
         else {
@@ -5963,10 +5960,12 @@ var InterfaceBuilder = /** @class */ (function () {
     return InterfaceBuilder;
 }());
 
-var ParametersManager = /** @class */ (function () {
+var ParametersManager = /** @class */ (function (_super) {
+    __extends(ParametersManager, _super);
     function ParametersManager(params, calendarManager) {
-        this.params = params;
-        this.calendarManager = calendarManager;
+        var _this = _super.call(this, params) || this;
+        _this.calendarManager = calendarManager;
+        return _this;
     }
     ParametersManager.prototype.getCalendarManager = function () {
         return this.calendarManager;
@@ -5996,7 +5995,7 @@ var ParametersManager = /** @class */ (function () {
         this.params.onDblClickBlock && this.params.onDblClickBlock(date);
     };
     return ParametersManager;
-}());
+}(Parameters));
 
 var Render = /** @class */ (function () {
     function Render(parameters) {
@@ -6054,7 +6053,7 @@ var ScheduleRender = /** @class */ (function (_super) {
             elHeader.appendChild(col);
         }
         var colHeaders = ScheduleRender.createElementHeaderColumn();
-        (_b = schedule.ui.header) === null || _b === void 0 ? void 0 : _b.days.map(function (day, i) {
+        (_b = schedule.ui.header) === null || _b === void 0 ? void 0 : _b.days.map(function (day) {
             var col = ScheduleRender.createElementHeaderColumnDay(day);
             colHeaders.appendChild(col);
         });
@@ -6107,8 +6106,10 @@ var ScheduleRender = /** @class */ (function (_super) {
         var elem = ScheduleRender.createElement('ss-block');
         elem.addEventListener('click', function () { return _this.parameters.fireOnClickBlock(block.params.date); });
         elem.addEventListener('dblclick', function () { return _this.parameters.fireOnDblClickBlock(block.params.date); });
-        block.minutes.map(function () {
+        block.minutes.map(function (min) {
             var elMinBlk = ScheduleRender.createElement('ss-block-minutes');
+            min.params.date && elMinBlk.setAttribute('data-dt', moment(min.params.date).format());
+            min.element = elMinBlk;
             elem.appendChild(elMinBlk);
         });
         return elem;
@@ -6128,35 +6129,41 @@ var ScheduleEventRender = /** @class */ (function (_super) {
         if (elemContainer && elemGrid) {
             elemGrid.addEventListener('mousemove', function (ev) {
                 var target = ev.target;
-                if (!target.classList.contains('ss-block-minutes') || !_this.selectedElement || !_this.selectedEvent)
+                if (!_this.selectedElement || !_this.selectedEvent)
+                    return;
+                if (!target.className.includes('ss-block-minutes') || !_this.selectedElement || !_this.selectedEvent)
                     return;
                 _this.selectedElement.style.top = "".concat(target.offsetTop, "px");
                 _this.selectedElement.style.left = "".concat(target.offsetLeft, "px");
-                EventsManager.setNewEventPosition(_this.selectedEvent, target.offsetTop, target.offsetLeft);
-            });
-            elemGrid.addEventListener('mouseup', function (ev) {
-                _this.selectedElement = undefined;
+                var blkMinDate = new Date(target.getAttribute('data-dt') || '');
+                _this.selectedEvent.startDate = blkMinDate;
+                _this.hasMoved = true;
             });
             ScheduleEventRender.removeAllEventsNode(elemContainer);
             var collideEvents = EventsManager.groupCollideEvents(schedule.events);
             collideEvents.map(function (events) {
-                events.map(function (event, index) {
+                events.map(function (event) {
                     var _a, _b, _c, _d;
-                    EventsManager.updatePosition(event, _this.parameters.getView(), events.length, index);
+                    EventsManager.updatePosition(event, schedule.grid, events.length);
                     var elEvent = ScheduleEventRender.createElementEvent(event.title);
                     elEvent.style.top = "".concat((_a = event.position) === null || _a === void 0 ? void 0 : _a.top, "px");
                     elEvent.style.left = "".concat((_b = event.position) === null || _b === void 0 ? void 0 : _b.left, "px");
                     elEvent.style.width = "".concat((_c = event.position) === null || _c === void 0 ? void 0 : _c.width, "px");
                     elEvent.style.height = "".concat((_d = event.position) === null || _d === void 0 ? void 0 : _d.height, "px");
-                    elEvent.addEventListener('click', function () { return event.onClick && event.onClick(event); });
-                    elEvent.addEventListener('dblclick', function () { return event.onDblClick && event.onDblClick(event); });
-                    elEvent.addEventListener('mousedown', function (ev) {
-                        _this.selectedElement = elEvent;
-                        _this.selectedEvent = event;
-                    });
-                    elEvent.addEventListener('mouseup', function (ev) {
+                    elEvent.addEventListener('click', function () {
+                        event.onClick && event.onClick(event);
+                        if (!_this.selectedElement || !_this.selectedEvent || !_this.hasMoved)
+                            return;
+                        if (_this.selectedEvent.onChange)
+                            _this.selectedEvent.onChange(_this.selectedEvent.startDate);
                         _this.selectedElement = undefined;
                         _this.selectedEvent = undefined;
+                        _this.hasMoved = undefined;
+                    });
+                    elEvent.addEventListener('dblclick', function () { return event.onDblClick && event.onDblClick(event); });
+                    elEvent.addEventListener('mousedown', function () {
+                        _this.selectedElement = elEvent;
+                        _this.selectedEvent = event;
                     });
                     elemContainer.appendChild(elEvent);
                 });
@@ -6176,7 +6183,7 @@ var ScheduleEventRender = /** @class */ (function (_super) {
     return ScheduleEventRender;
 }(Render));
 
-var Schedule$1 = /** @class */ (function () {
+var Schedule = /** @class */ (function () {
     function Schedule() {
         this.created = false;
     }
@@ -6200,8 +6207,9 @@ var Schedule$1 = /** @class */ (function () {
         };
     };
     Schedule.prototype.updateParameters = function (params) {
-        if (this.calendarManager)
-            this.paramsManager = new ParametersManager(params, this.calendarManager);
+        var _a, _b;
+        (_a = this.paramsManager) === null || _a === void 0 ? void 0 : _a.updateParameters(params);
+        (_b = this.calendarManager) === null || _b === void 0 ? void 0 : _b.updateParameters(params);
     };
     Schedule.prototype.render = function () {
         if (this.element && this.scheduleGrid && this.scheduleRender && this.scheduleEventRender) {
@@ -6249,22 +6257,19 @@ function styleInject(css, ref) {
 var css_248z = ".ss-header {\n  display: flex;\n  width: 100%;\n  border-top: 1px solid #bbb;\n}\n\n.ss-header > div:first-child {\n  width: 50px !important;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-header-column {\n  display: flex;\n  width: 100%;\n}\n\n.ss-header-column-day {\n  width: 100%;\n  padding: 4px;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-header-column-day:last-child {\n  border-right: 1px solid #bbb;\n}\n\n.ss-container {\n  position: relative;\n  display: flex;\n  width: 100%;\n  overflow: scroll;\n}\n\n.ss-aside {\n  display: flex;\n  flex-direction: column;\n  width: 50px;\n  text-align: center;\n}\n\n.ss-aside-block {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100%;\n  min-height: 40px;\n  border-bottom: 1px solid #bbb;\n  border-left: 1px solid #bbb;\n}\n\n.ss-grid {\n  display: flex;\n  width: 100%;\n}\n\n.ss-column {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  border-right: 1px solid #bbb;\n  background-color: #fff;\n}\n\n.ss-column:first-child {\n  border-left: 1px solid #bbb;\n}\n\n.ss-column--is-today {\n  background-color: #f4efdc;\n}\n\n.ss-block {\n  display: flex;\n  flex-direction: column;\n  min-height: 40px;\n  border-bottom: 1px solid #bbb;\n}\n\n.ss-block-minutes {\n  height: 100%;\n}\n\n.ss-block-minutes:nth-child(2) {\n  border-bottom: 1px solid #eee;\n}\n\n.ss-block:hover {\n  background-color: rgba(200, 200, 200, 0.2);\n}\n\n.ss-event {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  width: 100px;\n  height: 100px;\n  background-color: #ccc;\n  cursor: pointer;\n}";
 styleInject(css_248z);
 
-var Schedule = function (_a) {
+var Skedule = function (_a) {
     var date = _a.date, events = _a.events, onClickBlock = _a.onClickBlock, onDblClickBlock = _a.onDblClickBlock;
     var refSchedule = useRef(null);
-    var schedule = useState(new Schedule$1())[0];
+    var schedule = useState(new Schedule())[0];
     var _b = useState(), isMobile = _b[0], setIsMobile = _b[1];
-    var interDate = useState(date || new Date())[0];
-    var _c = useState((events === null || events === void 0 ? void 0 : events.map(function (e) {
-        !e.id && (e.id = uniqueId());
-        return e;
-    })) || []), interEvents = _c[0], setInterEvents = _c[1];
     var buildScheduleParams = function () {
-        console.log('buildScheduleParams', interEvents);
         return {
             view: isMobile ? ScheduleView.Day : ScheduleView.Week,
-            events: interEvents,
-            date: interDate,
+            events: events === null || events === void 0 ? void 0 : events.map(function (e) {
+                !e.id && (e.id = uniqueId());
+                return e;
+            }),
+            date: date,
             onClickBlock: onClickBlock,
             onDblClickBlock: onDblClickBlock
         };
@@ -6283,7 +6288,7 @@ var Schedule = function (_a) {
     };
     useEffect(function () {
         window.addEventListener('resize', handleOnResizeWindow);
-        var mq = window.matchMedia("(min-width: 768px)");
+        var mq = window.matchMedia('(min-width: 768px)');
         mq.addEventListener('change', mediaQueryListener);
         setIsMobile(!mq.matches);
         if (schedule && refSchedule.current) {
@@ -6292,12 +6297,10 @@ var Schedule = function (_a) {
         }
     }, []);
     useEffect(function () {
-        console.log('useEffect', events);
-        events && setInterEvents(events);
         updateParameters();
-    }, [events]);
+    }, [events, date]);
     return (React.createElement("div", { ref: refSchedule }, "Schedule"));
 };
 
-export { Schedule, ScheduleView };
+export { ScheduleView, Skedule };
 //# sourceMappingURL=index.js.map
