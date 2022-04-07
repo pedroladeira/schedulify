@@ -6299,6 +6299,10 @@ var Skedule = function (_a) {
     useEffect(function () {
         updateParameters();
     }, [events, date]);
+    useEffect(function () {
+        updateParameters();
+        console.log('isMobile', isMobile);
+    }, [isMobile]);
     return (React.createElement("div", { ref: refSchedule }, "Schedule"));
 };
 

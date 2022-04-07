@@ -3,8 +3,8 @@ import { ScheduleView } from './interfaces/types';
 import { Schedule as CalSchedule } from './schedule/Schedule';
 import { ScheduleEvent } from './interfaces/events';
 import { uniqueId } from './helpers/UniqueId';
-import './styles/index.scss';
 import { ScheduleParams } from './interfaces/parameters';
+import './styles/index.scss';
 
 interface SkeduleProps {
     onClickBlock?(date: Date): void;
@@ -66,6 +66,11 @@ const Skedule: FC<SkeduleProps> = ({
     useEffect(() => {
         updateParameters();
     }, [events, date]);
+
+    useEffect(() => {
+        updateParameters();
+        console.log('isMobile', isMobile);
+    }, [isMobile]);
 
     return (<div ref={refSchedule}>Schedule</div>);
 };

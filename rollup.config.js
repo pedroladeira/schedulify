@@ -1,39 +1,39 @@
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
-import resolve from "@rollup/plugin-node-resolve";
+import serve from "rollup-plugin-serve";
+import livereload from "rollup-plugin-livereload";
 import commonjs from "@rollup/plugin-commonjs";
-import typescript from "@rollup/plugin-typescript";
-import postcss from "rollup-plugin-postcss";
-import dts from "rollup-plugin-dts";
+import replace from '@rollup/plugin-replace';
+import babel from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const packageJson = require("./package.json");
 
 export default [
     {
-        input: "src/index.ts",
-        output: [
-            {
-                file: packageJson.main,
-                format: "cjs",
-                sourcemap: true
-            },
-            {
-                file: packageJson.module,
-                format: "esm",
-                sourcemap: true
-            }
-        ],
+        input: "./example/index.js",
+        output: {
+            file: "example/dist/bundle.js",
+            format: "iife",
+            sourcemap: true,
+        },
         plugins: [
-            peerDepsExternal(),
-            resolve(),
+            nodeResolve({
+                extensions: [".js"],
+            }),
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('development')
+            }),
+            babel({
+                presets: ["@babel/preset-react"],
+            }),
             commonjs(),
-            typescript({ tsconfig: "./tsconfig.json" }),
-            postcss()
+            serve({
+                open: true,
+                verbose: true,
+                contentBase: ["example", "example"],
+                host: "localhost",
+                port: 3000,
+            }),
+            livereload({ watch: "example" }),
         ],
-    },
-    {
-        input: "dist/esm/types/index.d.ts",
-        output: [{ file: "dist/index.d.ts", format: "esm" }],
-        plugins: [dts()],
-        external: [/\.(css|less|scss)$/],
     },
 ];
