@@ -36,7 +36,8 @@ class Schedule {
         this.scheduleGrid = {
             grid: GridBuilder.build(
                 this.paramsManager.getDaysOfWeek(), this.paramsManager.getHoursOfDay(),
-                this.paramsManager.getDate()
+                this.paramsManager.getDate(),
+                this.paramsManager.getView(),
             ),
             ui: InterfaceBuilder.build(this.paramsManager),
             events: this.paramsManager.getEvents(),

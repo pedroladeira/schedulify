@@ -69,7 +69,6 @@ const Skedule: FC<SkeduleProps> = ({
 
     useEffect(() => {
         updateParameters();
-        console.log('isMobile', isMobile);
     }, [isMobile]);
 
     return (<div ref={refSchedule}>Schedule</div>);

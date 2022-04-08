@@ -5759,6 +5759,7 @@ var EventsManager = /** @class */ (function () {
                     var initDate = moment(min.params.date);
                     var endDate = initDate.clone().add(15, 'minutes');
                     if (min.element && moment(event.startDate).isSameOrAfter(initDate) && moment(event.startDate).isBefore(endDate)) {
+                        console.log('>', min.element.offsetLeft);
                         event.position = {
                             top: min.element.offsetTop,
                             left: min.element.offsetLeft,
@@ -5872,6 +5873,9 @@ var CalendarManager = /** @class */ (function (_super) {
     CalendarManager.getHourDateByWeekIndex = function (index, date, hour) {
         return moment(date).clone().set('weekday', index).set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
     };
+    CalendarManager.getDateByHourIndex = function (date, hour) {
+        return moment(date).clone().set('hours', hour).set('minutes', 0).set('seconds', 0).toDate();
+    };
     CalendarManager.isToday = function (date) {
         var now = moment();
         return moment(date).isSame(now, 'day');
@@ -5882,11 +5886,12 @@ var CalendarManager = /** @class */ (function (_super) {
 var GridBuilder = /** @class */ (function () {
     function GridBuilder() {
     }
-    GridBuilder.build = function (columns, blocks, date) {
+    GridBuilder.build = function (columns, blocks, date, view) {
         var grid = Array(columns).fill(0).map(function (_, i) {
+            var colDate = (view === ScheduleView.Week ? CalendarManager.getWeekDateByWeekIndex(i, date) : date);
             var col = {
                 blocks: Array(blocks).fill(0).map(function (_, x) {
-                    var dateBlock = CalendarManager.getHourDateByWeekIndex(i, date, x);
+                    var dateBlock = CalendarManager.getDateByHourIndex(colDate, x);
                     var bl = {
                         minutes: [
                             GridBuilder.getBlockMinutesByIndex(0, dateBlock),
@@ -5901,7 +5906,7 @@ var GridBuilder = /** @class */ (function () {
                     return bl;
                 }),
                 params: {
-                    date: CalendarManager.getWeekDateByWeekIndex(i, date)
+                    date: colDate
                 }
             };
             return col;
@@ -5940,8 +5945,8 @@ var InterfaceBuilder = /** @class */ (function () {
             });
         }
         else {
-            var wd = params.getCalendarManager().getWeekDateByWeekIndex(0, date);
-            days.push("".concat(WEEK_DAYS[0], " - ").concat(wd.getDate()));
+            var wd = moment(date);
+            days.push("".concat(WEEK_DAYS[wd.weekday()], " - ").concat(wd.get('date')));
         }
         return {
             days: days,
@@ -6201,7 +6206,7 @@ var Schedule = /** @class */ (function () {
         if (!this.paramsManager)
             return;
         this.scheduleGrid = {
-            grid: GridBuilder.build(this.paramsManager.getDaysOfWeek(), this.paramsManager.getHoursOfDay(), this.paramsManager.getDate()),
+            grid: GridBuilder.build(this.paramsManager.getDaysOfWeek(), this.paramsManager.getHoursOfDay(), this.paramsManager.getDate(), this.paramsManager.getView()),
             ui: InterfaceBuilder.build(this.paramsManager),
             events: this.paramsManager.getEvents(),
         };
@@ -6218,6 +6223,7 @@ var Schedule = /** @class */ (function () {
         }
     };
     Schedule.prototype.refreshData = function () {
+        console.log('refreshData');
         if (this.element && this.scheduleGrid && this.scheduleEventRender && this.created) {
             this.scheduleEventRender.renderEvents(this.element, this.scheduleGrid);
         }
@@ -6301,7 +6307,6 @@ var Skedule = function (_a) {
     }, [events, date]);
     useEffect(function () {
         updateParameters();
-        console.log('isMobile', isMobile);
     }, [isMobile]);
     return (React.createElement("div", { ref: refSchedule }, "Schedule"));
 };

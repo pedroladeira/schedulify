@@ -1,6 +1,7 @@
 import { ScheduleView } from '../interfaces/types';
 import { ParametersManager } from '../managers/ParametersManager';
 import { HeaderUi, InterfaceUi, SideHours } from '../interfaces/additional';
+import moment from 'moment';
 
 class InterfaceBuilder {
     static build(params: ParametersManager): InterfaceUi {
@@ -21,8 +22,8 @@ class InterfaceBuilder {
                 days.push(`${WEEK_DAYS[i]} - ${wd.getDate()}`);
             });
         } else {
-            const wd = params.getCalendarManager().getWeekDateByWeekIndex(0, date);
-            days.push(`${WEEK_DAYS[0]} - ${wd.getDate()}`);
+            const wd = moment(date);
+            days.push(`${WEEK_DAYS[wd.weekday()]} - ${wd.get('date')}`);
         }
 
         return {

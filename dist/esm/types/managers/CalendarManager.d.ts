@@ -10,6 +10,7 @@ declare class CalendarManager extends Parameters {
     static getSelectedDate(): Date;
     static getWeekDateByWeekIndex(index: number, date?: Date): Date;
     static getHourDateByWeekIndex(index: number, date: Date, hour: number): Date;
+    static getDateByHourIndex(date: Date, hour: number): Date;
     static isToday(date: Date): boolean;
 }
 export { CalendarManager };
